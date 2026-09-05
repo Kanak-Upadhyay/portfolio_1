@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanak Upadhyay · Python Data Engineer</title>
+<meta name="description" content="Kanak Upadhyay · Python Data Engineer specializing in web scraping, automation, ETL, SQL, databases and business-ready data pipelines.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,480;0,9..144,600;0,9..144,700;1,9..144,420&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+  :root{
+    --ink:#0b0d10;
+    --panel:#14171b;
+    --line:#262b31;
+    --paper:#eeece4;
+    --dim:#838d97;
+    --signal:#ff6a3d;
+    --live:#35d07f;
+    --cyan:#00f0ff;
+    --pink:#ff2e8a;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--ink);color:var(--paper);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--signal);color:var(--ink);}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+  .mono{font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;}
+  .wrap{max-width:900px;margin:0 auto;padding:0 28px;}
+
+  .grid-bg{position:fixed;inset:0;background-image:radial-gradient(rgba(238,236,228,.05) 1px, transparent 1px);background-size:26px 26px;pointer-events:none;z-index:0;}
+  .scanlines{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.3;background:repeating-linear-gradient(to bottom, rgba(255,255,255,.02) 0px, rgba(255,255,255,.02) 1px, transparent 2px, transparent 4px);animation:scan-drift 9s linear infinite;}
+  @keyframes scan-drift{from{background-position:0 0;}to{background-position:0 120px;}}
+  .cursor-glow{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .5s ease;background:radial-gradient(420px circle at var(--gx,50%) var(--gy,50%), rgba(0,240,255,.05), transparent 70%);}
+  .cursor-glow.active{opacity:1;}
+  .progress-bar{position:fixed;top:0;left:0;height:2px;width:100%;background:var(--signal);transform:scaleX(0);transform-origin:left;z-index:30;}
+
+  .boot{position:fixed;inset:0;z-index:999;background:var(--ink);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 8vw;animation:boot-fadeout 3.6s ease forwards;}
+  @keyframes boot-fadeout{0%,86%{opacity:1;visibility:visible;}100%{opacity:0;visibility:hidden;}}
+  .boot-line{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--dim);white-space:nowrap;overflow:hidden;width:0;border-right:2px solid var(--signal);margin-bottom:10px;animation:boot-type steps(30) forwards, boot-caret .8s step-end infinite;}
+  .boot-line b{color:var(--paper);font-weight:500;}
+  .boot-line:nth-child(1){animation-duration:.9s, .8s;animation-delay:.15s, 0s;}
+  .boot-line:nth-child(2){animation-duration:.9s, .8s;animation-delay:1.15s, 0s;}
+  .boot-line:nth-child(3){animation-duration:.9s, .8s;animation-delay:2.15s, 0s;}
+  @keyframes boot-type{to{width:100%;}}
+  @keyframes boot-caret{50%{border-color:transparent;}}
+  .boot-progress{height:2px;width:220px;max-width:60vw;background:var(--line);margin-top:20px;position:relative;overflow:hidden;}
+  .boot-progress::after{content:"";position:absolute;inset:0;background:var(--signal);transform:scaleX(0);transform-origin:left;animation:boot-fill 3s ease forwards;}
+  @keyframes boot-fill{to{transform:scaleX(1);}}
+  .boot-skip{position:absolute;bottom:26px;right:8vw;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border:1px solid var(--line);padding:8px 12px;}
+  .boot-skip:hover{color:var(--paper);border-color:var(--signal);}
+
+  header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:rgba(11,13,16,.82);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .id{display:flex;align-items:center;gap:11px;}
+  .id img{width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--line);display:block;}
+  .id-name{font-size:12px;font-weight:600;letter-spacing:.04em;}
+  .status{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--dim);text-transform:uppercase;}
+  .status i{width:6px;height:6px;border-radius:50%;background:var(--live);box-shadow:0 0 8px rgba(53,208,127,.7);display:inline-block;animation:blink 2.4s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+  .glitch-target{position:relative;display:inline-block;}
+  .glitch-target.glitching{animation:glitch-jitter .32s steps(2,end) 2;}
+  .glitch-target.glitching::before,.glitch-target.glitching::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;overflow:hidden;opacity:.7;}
+  .glitch-target.glitching::before{color:var(--cyan);transform:translate(2px,0);mix-blend-mode:screen;animation:glitch-slice-a .32s steps(2,end) 2;}
+  .glitch-target.glitching::after{color:var(--pink);transform:translate(-2px,0);mix-blend-mode:screen;animation:glitch-slice-b .32s steps(2,end) 2;}
+  @keyframes glitch-jitter{0%{transform:translate(0,0) skewX(0);}30%{transform:translate(-1px,1px) skewX(1deg);}60%{transform:translate(1px,-1px) skewX(-1deg);}100%{transform:translate(0,0) skewX(0);}}
+  @keyframes glitch-slice-a{0%{clip-path:inset(10% 0 70% 0);}50%{clip-path:inset(60% 0 5% 0);}100%{clip-path:inset(30% 0 40% 0);}}
+  @keyframes glitch-slice-b{0%{clip-path:inset(70% 0 5% 0);}50%{clip-path:inset(5% 0 60% 0);}100%{clip-path:inset(45% 0 20% 0);}}
+
+  /* ---------- scene 1: giant name ---------- */
+  .pin-stage{position:relative;min-height:82vh;display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid var(--line);z-index:2;padding:60px 0;}
+  .scene-tag{position:absolute;top:26px;left:28px;font-size:10px;color:var(--dim);text-transform:uppercase;z-index:3;}
+  .scene-tag b{color:var(--signal);}
+  .scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--dim);display:flex;align-items:center;gap:9px;z-index:3;}
+  .scroll-cue .ln{width:26px;height:1px;background:var(--dim);}
+  #nameStage{perspective:1200px;}
+  .name-giant{text-align:center;padding:0 20px;transform-style:preserve-3d;}
+  .name-giant .word{display:block;font-family:'Fraunces',serif;font-weight:600;font-size:clamp(52px, 14vw, 200px);line-height:.86;letter-spacing:-.02em;color:var(--paper);text-shadow:3px 3px 0 rgba(255,106,61,.35), 6px 6px 0 rgba(0,240,255,.2), 9px 9px 0 rgba(255,46,138,.15);}
+  .name-giant .word.accent{color:var(--signal);text-shadow:3px 3px 0 rgba(0,240,255,.3), 6px 6px 0 rgba(255,46,138,.2);}
+  .name-sub{margin-top:26px;font-size:11px;color:var(--dim);text-transform:uppercase;}
+
+  /* ---------- ticker ---------- */
+  .ticker{border-bottom:1px solid var(--line);background:var(--panel);overflow:hidden;white-space:nowrap;position:relative;z-index:1;}
+  .ticker-track{display:inline-flex;animation:scroll-left 32s linear infinite;}
+  .ticker span{font-size:11px;padding:13px 26px;color:var(--dim);border-right:1px solid var(--line);white-space:nowrap;}
+  .ticker span b{color:var(--paper);font-weight:600;}
+  .ticker span.hot{color:var(--signal);}
+  .ticker span.hot:nth-of-type(4n+2){color:var(--cyan);}
+  .ticker span.hot:nth-of-type(4n){color:var(--pink);}
+  @keyframes scroll-left{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  /* ---------- split layout: sticky photo + flowing content ---------- */
+  .split-stage{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:60px 28px 0;display:grid;grid-template-columns:360px 1fr;gap:56px;align-items:start;}
+
+  .split-photo-sticky{position:sticky;top:100px;}
+  .split-photo-frame{position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;perspective:800px;}
+  .split-photo-frame .photo-tilt{width:100%;height:100%;transition:transform .4s cubic-bezier(.2,.8,.2,1);animation:photo-float 5.5s ease-in-out infinite;}
+  .split-photo-frame:hover .photo-tilt,.split-photo-frame.tilting .photo-tilt{animation-play-state:paused;transition:transform .1s ease-out;}
+  @keyframes photo-float{0%,100%{transform:translateY(0) rotateZ(0deg);}50%{transform:translateY(-7px) rotateZ(-.6deg);}}
+  .split-photo-frame img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 28%;opacity:1;visibility:visible;-webkit-mask-image:none;mask-image:none;}
+  .photo-tilt.glitching{animation:photo-glitch-jump .28s steps(3,end) 1;}
+  @keyframes photo-glitch-jump{0%{filter:none;}30%{filter:drop-shadow(3px 0 0 var(--cyan)) drop-shadow(-3px 0 0 var(--pink));}60%{filter:drop-shadow(-2px 1px 0 var(--cyan)) drop-shadow(2px -1px 0 var(--pink));}100%{filter:none;}}
+  .split-photo-ring{position:absolute;inset:-12px;border:1px dashed rgba(255,106,61,.25);animation:ring-cycle 6s linear infinite;pointer-events:none;}
+  @keyframes ring-cycle{0%,32%{border-color:rgba(255,106,61,.3);}33%,65%{border-color:rgba(0,240,255,.3);}66%,100%{border-color:rgba(255,46,138,.3);}}
+  .split-photo-tag{margin-top:16px;font-size:8.5px;color:var(--dim);text-align:center;}
+
+  .split-flow{display:flex;flex-direction:column;}
+  .flow-section{padding:64px 0;border-bottom:1px solid var(--line);}
+  .flow-section:last-child{border-bottom:none;}
+  .file-tab{display:inline-flex;align-items:center;gap:9px;font-size:10px;color:var(--dim);text-transform:uppercase;margin-bottom:26px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+  .file-tab b{color:var(--signal);}
+  .flow-section:nth-of-type(3n+2) .file-tab b{color:var(--cyan);}
+  .flow-section:nth-of-type(3n) .file-tab b{color:var(--pink);}
+
+  h2{font-family:'Fraunces',serif;font-weight:480;font-size:clamp(26px,3.6vw,38px);line-height:1.15;margin:0 0 18px;max-width:600px;}
+  .lead{font-size:14.5px;line-height:1.8;color:#c7cbd1;max-width:540px;}
+
+  /* ---------- 3D flow tiles (cards) ---------- */
+  .tile{
+    position:relative;transform-style:preserve-3d;will-change:transform;
+    transition:transform .45s cubic-bezier(.2,.8,.2,1), background .3s ease, box-shadow .3s ease;
+  }
+  .tile.tilting{transition:transform .08s linear;}
+  .tile::before{content:"";position:absolute;inset:0;background:radial-gradient(220px circle at var(--lx,50%) var(--ly,50%), rgba(255,106,61,.10), transparent 72%);opacity:0;transition:opacity .3s ease;pointer-events:none;z-index:0;}
+  .tile:hover::before{opacity:1;}
+  .tile:hover{box-shadow:0 18px 40px -20px rgba(0,0,0,.6);}
+  .tile > *{position:relative;z-index:1;}
+
+  .sectors{display:flex;flex-direction:column;margin-top:8px;border-top:1px solid var(--line);}
+  .sector{display:grid;grid-template-columns:56px 1fr;gap:18px;padding:22px 16px;margin:0 -16px;border-bottom:1px solid var(--line);border-radius:4px;background:transparent;}
+  .sector:hover{background:rgba(255,106,61,.05);}
+  .sector .num{font-size:11px;color:var(--dim);padding-top:4px;}
+  .sector h3{font-family:'Fraunces',serif;font-weight:480;font-size:19px;margin:0 0 6px;}
+  .sector p{font-size:13px;color:var(--dim);line-height:1.6;margin:0;max-width:480px;}
+
+  .dispatches{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
+  .dispatch{border:1px solid var(--line);background:var(--panel);padding:24px 22px;border-radius:4px;}
+  .dispatch-id{font-size:10px;color:var(--signal);}
+  .dispatch h3{font-family:'Fraunces',serif;font-weight:480;font-size:20px;margin:8px 0 8px;}
+  .dispatch p{font-size:13px;color:var(--dim);line-height:1.65;margin:0 0 10px;max-width:500px;}
+  .dispatch .tag{font-size:9.5px;color:var(--dim);text-transform:uppercase;}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:8px;}
+  .stat{background:var(--panel);padding:18px 16px;overflow:hidden;}
+  .stat-num{font-size:24px;font-weight:500;color:var(--signal);}
+  .stat-label{font-size:10px;color:var(--dim);margin-top:5px;line-height:1.5;}
+
+  .tool-groups{margin-top:8px;display:flex;flex-direction:column;gap:14px;}
+  .tool-group{padding:12px 14px;margin:0 -14px;border-radius:6px;}
+  .tool-group:hover{background:rgba(255,46,138,.05);}
+  .tool-group-label{font-size:9.5px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .chip{font-size:10.5px;padding:8px 13px;border:1px solid var(--line);color:#c7cbd1;background:var(--panel);transition:transform .25s cubic-bezier(.2,.9,.25,1.4), border-color .25s ease, color .25s ease;}
+  .chip:hover{transform:translateY(-4px) scale(1.06) rotate(-1deg);border-color:var(--cyan);color:var(--paper);}
+  .chip:nth-child(3n+2):hover{border-color:var(--pink);}
+  .chip:nth-child(3n):hover{border-color:var(--signal);}
+
+  .contact h2{max-width:none;}
+  .sign{margin-top:26px;display:inline-flex;align-items:center;gap:11px;font-size:13px;color:var(--signal);border-bottom:1px solid rgba(255,106,61,.4);padding-bottom:6px;}
+  .status-chip{margin-top:18px;display:inline-flex;align-items:center;gap:8px;font-size:10px;color:var(--dim);text-transform:uppercase;border:1px solid var(--line);padding:8px 12px;}
+  .status-chip i{width:6px;height:6px;border-radius:50%;background:var(--live);display:inline-block;box-shadow:0 0 8px rgba(53,208,127,.7);}
+
+  footer{position:relative;z-index:1;display:flex;justify-content:space-between;padding:22px 28px;font-size:10px;color:var(--dim);text-transform:uppercase;margin-top:20px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+    .photo-tilt{animation:none;}
+  }
+
+  @media (max-width:860px){
+    .split-stage{grid-template-columns:1fr;padding-top:40px;}
+    .split-photo-sticky{position:static;max-width:280px;margin:0 auto 30px;}
+    .stat-grid{grid-template-columns:repeat(2, 1fr);}
+  }
+  @media (max-width:640px){
+    .wrap{padding:0 20px;}
+    header{padding:14px 20px;}
+    .name-giant .word{font-size:clamp(40px,18vw,90px);}
+    .sector{grid-template-columns:1fr;}
+    .split-stage{padding-left:20px;padding-right:20px;}
+    footer{flex-direction:column;gap:8px;padding:20px;}
+  }
+
+  .dispatch-link{
+    display:block;
+    color:inherit;
+    text-decoration:none;
+    position:relative;
+  }
+  .dispatch-link:focus-visible{
+    outline:2px solid var(--signal);
+    outline-offset:4px;
+  }
+  .dispatch-source{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:9px;
+    font-size:9px;
+    color:var(--signal);
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    opacity:.78;
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .dispatch-link:hover .dispatch-source{
+    opacity:1;
+    transform:translateX(3px);
+  }
+
+
+  /* ---------- Toolkit icons ---------- */
+  .tool-groups .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+  }
+  .tool-icon{
+    width:17px;
+    height:17px;
+    display:block;
+    flex:0 0 17px;
+    object-fit:contain;
+    filter:brightness(.95);
+    transition:transform .25s ease,filter .25s ease;
+  }
+  .tool-groups .chip:hover .tool-icon{
+    transform:scale(1.12);
+    filter:brightness(1.15);
+  }
+
+
+  /* Robust toolkit icons — no external image dependency */
+  .tool-chip{display:inline-flex;align-items:center;gap:8px;}
+  .tool-icon{
+    width:18px;height:18px;min-width:18px;
+    display:inline-flex;align-items:center;justify-content:center;
+    border-radius:4px;
+    font:700 8px/1 'Space Mono',monospace;
+    letter-spacing:-.03em;
+    color:#eef0f2;
+    background:#252a30;
+    border:1px solid rgba(255,255,255,.12);
+    box-sizing:border-box;
+    transition:transform .25s ease,filter .25s ease;
+  }
+  .tool-chip:hover .tool-icon{transform:scale(1.12);filter:brightness(1.2);}
+  .tool-icon-figma{font-size:9px;color:#ff4f9a;}
+  .tool-icon-gemini{font-size:12px;color:#b68cff;}
+  .tool-icon-perplexity{color:#55d9e6;}
+  .tool-icon-mysql{font-size:7px;color:#4ea7df;}
+  .tool-icon-powerbi{color:#f2c94c;}
+  .tool-icon-jira{color:#5796ff;}
+  .tool-icon-html{font-size:11px;color:#ff6a3d;}
+  .tool-icon-canva{color:#65d9d0;}
+  .tool-icon-gamma{color:#ff9b70;}
+  .tool-icon-chatgpt{color:#8ce6bf;font-size:12px;}
+  .tool-icon-sql{color:#c9ced6;font-size:6.5px;}
+  .tool-icon-zoho{color:#ff6672;font-size:6px;}
+
+
+  .tool-icon-css{color:#4aa8ff;}
+  .tool-icon-excel{color:#62c98b;}
+  .tool-icon-claude{color:#f2a06a;}
+  .tool-icon-vercel{color:#fff;background:#111;}
+  .tool-icon-github{color:#fff;background:#161b22;}
+  .tool-icon-clickup{color:#ff6b83;}
+  .tool-icon-custom-crm{color:#ff9a68;font-size:6px;}
+
+
+  .contact-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;}
+  .contact-actions .sign{margin-top:0;}
+
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('anim-ready');</script>
+
+<div class="boot mono" id="bootScreen">
+  <div class="boot-line">&gt; ACCESSING FIELD FILE...</div>
+  <div class="boot-line">&gt; VERIFYING CLEARANCE...</div>
+  <div class="boot-line">&gt; <b>FILE OPEN · WELCOME</b></div>
+  <div class="boot-progress"></div>
+  <div class="boot-skip" id="bootSkip">Skip ›</div>
+</div>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+<div class="grid-bg"></div>
+<div class="scanlines"></div>
+
+<header>
+  <div class="id">
+    <img src="kanak-profile.jpeg" alt="Kanak Upadhyay">
+    <span class="id-name mono">KANAK UPADHYAY</span>
+  </div>
+  <div class="status mono"><i></i>Open to opportunities</div>
+</header>
+
+<!-- SCENE 1 · giant name -->
+<section class="pin-stage" id="nameStage">
+  <span class="scene-tag mono"><b>SCENE</b> / 01</span>
+  <div class="name-giant" id="nameGiant">
+    <span class="word">KANAK</span>
+    <span class="word accent">UPADHYAY</span>
+    <div class="name-sub mono">Data Engineering · Noida, UP</div>
+  </div>
+  <div class="scroll-cue mono"><span class="ln"></span>SCROLL TO OPEN FILE</div>
+</section>
+
+<div class="ticker mono">
+  <div class="ticker-track" id="tickerTrack">
+    <span><b>2.5+</b> years professional experience</span>
+    <span class="hot">PYTHON</span>
+    <span><b>ETL</b> data pipelines</span>
+    <span class="hot">WEB AUTOMATION</span>
+    <span><b>3</b> database technologies</span>
+    <span class="hot">SQL &amp; APIS</span>
+    <span><b>US + INTERNATIONAL</b> data domains</span>
+    <span>Extract → Validate → Transform → Store</span>
+    <span><b>2.5+</b> years professional experience</span>
+    <span class="hot">PYTHON</span>
+    <span><b>ETL</b> data pipelines</span>
+    <span class="hot">WEB AUTOMATION</span>
+    <span><b>3</b> database technologies</span>
+    <span class="hot">SQL &amp; APIS</span>
+    <span><b>US + INTERNATIONAL</b> data domains</span>
+    <span>Extract → Validate → Transform → Store</span>
+  </div>
+</div>
+
+<!-- SPLIT LAYOUT · sticky photo (left) + flowing content (right) -->
+<div class="split-stage">
+
+  <div class="split-photo-sticky">
+    <div class="split-photo-frame" id="photoFrame">
+      <div class="split-photo-ring"></div>
+      <div class="photo-tilt" id="photoTilt">
+        <img src="kanak-profile.jpeg" alt="Kanak Upadhyay">
+      </div>
+    </div>
+    <div class="split-photo-tag mono">KU · DATA ID</div>
+  </div>
+
+  <div class="split-flow">
+
+    <section class="flow-section">
+      <div class="file-tab mono"><b>FILE</b> / 01 · PROFILE</div>
+      <h2 class="glitch-target" data-text="I build data pipelines that turn web data into reliable, business-ready datasets.">I build data pipelines that turn web data into reliable, business-ready datasets.</h2>
+      <p class="lead">Python Data Engineer with 2.5+ years of experience in web data collection, data extraction, browser automation and ETL workflows. I work with Python, Selenium, BeautifulSoup, Requests, SQL, MongoDB, HTML, JSON, XML and APIs to build scalable, clean and reliable data systems.</p>
+      <div class="status-chip mono"><i></i>Open to opportunities</div>
+    </section>
+
+    <section class="flow-section">
+      <div class="file-tab mono"><b>FILE</b> / 02 · DATA DOMAINS</div>
+      <h2 class="glitch-target" data-text="Restaurant, grocery, pharmacy and fuel data.">Restaurant, grocery, pharmacy and fuel data.</h2>
+      <div class="sectors">
+        <div class="sector tile">
+          <div class="num mono">01</div>
+          <div><h3>Restaurant &amp; Food · U.S. &amp; France</h3><p>Store locations, menus, operating hours, services, pricing and structured brand data.</p></div>
+        </div>
+        <div class="sector tile">
+          <div class="num mono">02</div>
+          <div><h3>Grocery &amp; Pharmacy</h3><p>Product listings, pricing, availability, normalization and downstream reporting datasets.</p></div>
+        </div>
+        <div class="sector tile">
+          <div class="num mono">03</div>
+          <div><h3>Fuel Stations &amp; Stores</h3><p>Fuel station details, convenience stores, business hours, scheduled updates and pricing analysis.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="flow-section">
+      <div class="file-tab mono"><b>FILE</b> / 03 · PROJECTS</div>
+      <h2 class="glitch-target" data-text="Selected data engineering work.">Selected data engineering work.</h2>
+      <div class="dispatches">
+        <div class="dispatch tile">
+          <span class="dispatch-id mono">P–01</span>
+          <h3>Restaurant &amp; Food Chain Data Extraction</h3>
+          <p>Large-scale extraction of store locations, menus, operating hours and available services from official brand websites using HTML, REST APIs, JSON and dynamic-site automation.</p>
+          <span class="tag mono">Taco Bell · KFC · Domino's · Subway · Denny's · IHOP · Burger King</span>
+        </div>
+        <div class="dispatch tile">
+          <span class="dispatch-id mono">P–02</span>
+          <h3>Grocery &amp; Pharmacy Data Scraping</h3>
+          <p>Extracted product listings, pricing and availability, then cleaned, normalized, validated and prepared large datasets for reporting.</p>
+          <span class="tag mono">Good Neighbor Health · Pandas · Power BI</span>
+        </div>
+        <div class="dispatch tile">
+          <span class="dispatch-id mono">P–03</span>
+          <h3>Fuel Station &amp; Store Hours Data Extraction</h3>
+          <p>Collected fuel station, convenience-store and business-timing data and automated periodic updates with validation checks.</p>
+          <span class="tag mono">Rutters · KFC · Automation · ETL</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="flow-section">
+      <div class="file-tab mono"><b>FILE</b> / 04 · PIPELINE</div>
+      <h2 class="glitch-target" data-text="Extract → Validate → Transform → Store.">Extract → Validate → Transform → Store.</h2>
+      <p class="lead">I design workflows that collect data from dynamic and static websites, clean and validate it, transform it into consistent structures, and store it in databases or reporting-ready formats.</p>
+      <div class="stat-grid">
+        <div class="stat tile"><div class="stat-num mono">2.5+</div><div class="stat-label">Years professional experience</div></div>
+        <div class="stat tile"><div class="stat-num mono">3</div><div class="stat-label">Database technologies</div></div>
+        <div class="stat tile"><div class="stat-num mono">4</div><div class="stat-label">Core data domains</div></div>
+        <div class="stat tile"><div class="stat-num mono">2</div><div class="stat-label">Programming languages</div></div>
+      </div>
+    </section>
+
+    <section class="flow-section">
+      <div class="file-tab mono"><b>FILE</b> / 05 · EXPERIENCE</div>
+      <h2 class="glitch-target" data-text="Data Engineer (Python &amp; PHP)">Data Engineer (Python &amp; PHP)</h2>
+      <p class="lead"><b>ITSYS Solutions Pvt. Ltd. · Sep 2023 – Present</b></p>
+      <div class="chips" style="margin-top:20px;">
+        <span class="chip">Web Data Extraction</span>
+        <span class="chip">Browser Automation</span>
+        <span class="chip">ETL Pipelines</span>
+        <span class="chip">SQL Validation</span>
+        <span class="chip">Pagination</span>
+        <span class="chip">Sessions &amp; Cookies</span>
+        <span class="chip">Headers &amp; Rate Limiting</span>
+        <span class="chip">Error Handling</span>
+        <span class="chip">Dataset Quality</span>
+        <span class="chip">Power BI</span>
+      </div>
+    </section>
+
+    <section class="flow-section">
+      <div class="file-tab mono"><b>FILE</b> / 06 · TECHNICAL STACK</div>
+      <h2 class="glitch-target" data-text="The stack.">The stack.</h2>
+      <div class="tool-groups">
+        <div class="tool-group tile">
+          <div class="tool-group-label mono">Programming</div>
+          <div class="chips">
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-python" aria-hidden="true">Py</span><span>Python</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-php" aria-hidden="true">PHP</span><span>PHP</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-sql" aria-hidden="true">SQL</span><span>SQL</span></span>
+          </div>
+        </div>
+        <div class="tool-group tile">
+          <div class="tool-group-label mono">Web Scraping &amp; Automation</div>
+          <div class="chips">
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-selenium" aria-hidden="true">S</span><span>Selenium</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-bs" aria-hidden="true">BS</span><span>BeautifulSoup</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-requests" aria-hidden="true">R</span><span>Requests</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-curl" aria-hidden="true">c</span><span>cURL</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-cloud" aria-hidden="true">CS</span><span>cloudscraper</span></span>
+          </div>
+        </div>
+        <div class="tool-group tile">
+          <div class="tool-group-label mono">Data &amp; APIs</div>
+          <div class="chips">
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-pandas" aria-hidden="true">Pd</span><span>Pandas</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-numpy" aria-hidden="true">Np</span><span>NumPy</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-api" aria-hidden="true">API</span><span>REST APIs</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-json" aria-hidden="true">{ }</span><span>JSON</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-xml" aria-hidden="true">&lt;/&gt;</span><span>XML</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-html" aria-hidden="true">5</span><span>HTML</span></span>
+          </div>
+        </div>
+        <div class="tool-group tile">
+          <div class="tool-group-label mono">Databases</div>
+          <div class="chips">
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-mysql" aria-hidden="true">SQL</span><span>MySQL</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-postgres" aria-hidden="true">PG</span><span>PostgreSQL</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-mongo" aria-hidden="true">M</span><span>MongoDB</span></span>
+          </div>
+        </div>
+        <div class="tool-group tile">
+          <div class="tool-group-label mono">BI &amp; Tools</div>
+          <div class="chips">
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-powerbi" aria-hidden="true">BI</span><span>Power BI</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-excel" aria-hidden="true">X</span><span>Excel</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-git" aria-hidden="true">G</span><span>Git</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-github" aria-hidden="true">GH</span><span>GitHub</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-vscode" aria-hidden="true">VS</span><span>VS Code</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-postman" aria-hidden="true">P</span><span>Postman</span></span>
+            <span class="chip tool-chip"><span class="tool-icon tool-icon-clickup" aria-hidden="true">CU</span><span>ClickUp</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="flow-section">
+      <div class="file-tab mono"><b>FILE</b> / 07 · EDUCATION</div>
+      <h2 class="glitch-target" data-text="Master of Computer Applications.">Master of Computer Applications.</h2>
+      <p class="lead"><b>Dr. APJ Abdul Kalam Technical University, Lucknow, U.P.</b><br>Year of Passing: 2024</p>
+    </section>
+
+    <section class="flow-section contact">
+      <div class="file-tab mono"><b>FILE</b> / 08 · OPEN A CHANNEL</div>
+      <h2 class="glitch-target" data-text="Let's build something with data.">Let's build something with data.</h2>
+      <p class="lead">Open to Python and Data Engineering opportunities where web data, automation, ETL and business-ready analytics come together.</p>
+      <div class="contact-actions">
+        <a class="sign mono" href="Kanak_Upadhyay_Resume.pdf" target="_blank" rel="noopener">VIEW RESUME ↗</a>
+        <a class="sign mono" href="https://github.com/Kanak-Upadhyay" target="_blank" rel="noopener">github.com/Kanak-Upadhyay ↗</a>
+        <a class="sign mono" href="https://www.linkedin.com/in/kanak-upadhyay-4b3b802a3" target="_blank" rel="noopener">linkedin.com/in/kanak-upadhyay-4b3b802a3 ↗</a>
+        <a class="sign mono" href="mailto:kanakupadhyay13@gmail.com">kanakupadhyay13@gmail.com ↗</a>
+      </div>
+    </section>
+
+  </div>
+  </div>
+</div>
+
+<footer class="mono"><span>Kanak Upadhyay · Python Data Engineer</span><span>File closed · 2026</span></footer>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Boot intro
+  const bootScreen = document.getElementById('bootScreen');
+  const bootSkip = document.getElementById('bootSkip');
+  const hideBoot = () => {
+    bootScreen.style.transition = 'opacity .3s ease';
+    bootScreen.style.opacity = '0';
+    bootScreen.style.visibility = 'hidden';
+  };
+  bootSkip.addEventListener('click', hideBoot);
+  window.addEventListener('keydown', hideBoot, { once: true });
+  if (reduceMotion) hideBoot();
+
+  // Glitch text trigger (used on load + on scroll flow-in)
+  const triggerGlitch = (el) => {
+    el.classList.remove('glitching');
+    void el.offsetWidth;
+    el.classList.add('glitching');
+    setTimeout(() => el.classList.remove('glitching'), 700);
+  };
+
+  // Ticker pause on hover
+  const track = document.getElementById('tickerTrack');
+  track.parentElement.addEventListener('mouseenter', () => track.style.animationPlayState = 'paused');
+  track.parentElement.addEventListener('mouseleave', () => track.style.animationPlayState = 'running');
+
+  // Scroll progress
+  const progressBar = document.getElementById('progressBar');
+  const updateProgress = () => {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
+    progressBar.style.transform = `scaleX(${Math.min(1, Math.max(0, scrolled))})`;
+  };
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  if (!reduceMotion) {
+    // Site-wide cursor spotlight
+    const cursorGlow = document.getElementById('cursorGlow');
+    let glowActive = false;
+    window.addEventListener('mousemove', (e) => {
+      cursorGlow.style.setProperty('--gx', e.clientX + 'px');
+      cursorGlow.style.setProperty('--gy', e.clientY + 'px');
+      if (!glowActive) { cursorGlow.classList.add('active'); glowActive = true; }
+    }, { passive: true });
+
+    // Photo tilt (replaces the old 3D avatar)
+    const photoFrame = document.getElementById('photoFrame');
+    const photoTilt = document.getElementById('photoTilt');
+    photoFrame.addEventListener('mousemove', (e) => {
+      const r = photoFrame.getBoundingClientRect();
+      const dx = (e.clientX - r.left) / r.width - 0.5;
+      const dy = (e.clientY - r.top) / r.height - 0.5;
+      photoFrame.classList.add('tilting');
+      photoTilt.style.transform = `rotateY(${dx * 16}deg) rotateX(${dy * -16}deg) scale(1.02)`;
+    });
+    photoFrame.addEventListener('mouseleave', () => {
+      photoFrame.classList.remove('tilting');
+      photoTilt.style.transform = '';
+    });
+    setInterval(() => {
+      photoTilt.classList.add('glitching');
+      setTimeout(() => photoTilt.classList.remove('glitching'), 320);
+    }, 5000);
+
+    // 3D hover-tilt for individual tiles (sector rows, dispatch cards, stats, tool groups)
+    document.querySelectorAll('.tile').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
+        card.classList.add('tilting');
+        card.style.transform = `perspective(700px) rotateX(${(0.5 - py) * 8}deg) rotateY(${(px - 0.5) * 8}deg) translateY(-2px)`;
+        card.style.setProperty('--lx', (px * 100) + '%');
+        card.style.setProperty('--ly', (py * 100) + '%');
+      });
+      card.addEventListener('mouseleave', () => {
+        card.classList.remove('tilting');
+        card.style.transform = '';
+      });
+    });
+  }
+
+  // ---------- Cinematic + scroll-flow (GSAP ScrollTrigger, progressive enhancement) ----------
+  if (window.gsap && window.ScrollTrigger && !reduceMotion) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Scene 1 — short, smooth handoff into the ticker.
+    // The hero remains visually stable, then gently lifts/fades only at the end.
+    gsap.to('#nameGiant', {
+      y: -28,
+      opacity: 0.22,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#nameStage',
+        start: 'top top',
+        end: 'bottom 18%',
+        scrub: 1.6,
+        pin: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true
+      }
+    });
+
+    // Each flow-section + its tiles flow in/out smoothly as it passes the viewport,
+    // with the tiles inside getting their own staggered 3D pop.
+    document.querySelectorAll('.flow-section').forEach((section) => {
+      const heading = section.querySelector('h2');
+      const tiles = section.querySelectorAll('.tile');
+      const others = section.querySelectorAll('.lead, .status-chip, .sign, .chips:not(.tile .chips)');
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 82%',
+          end: 'bottom 30%',
+          toggleActions: 'play reverse play reverse'
+        },
+        onStart: () => { if (heading) triggerGlitch(heading); }
+      });
+
+      tl.from(section.querySelector('.file-tab'), { opacity: 0, y: 16, duration: .5, ease: 'power2.out' }, 0);
+      if (heading) tl.from(heading, { opacity: 0, y: 26, rotateX: -20, transformOrigin: 'left center', duration: .6, ease: 'power2.out' }, 0.05);
+      if (others.length) tl.from(others, { opacity: 0, y: 20, duration: .5, ease: 'power2.out', stagger: .08 }, 0.15);
+      if (tiles.length) {
+        gsap.set(tiles, { transformPerspective: 800 });
+        tl.from(tiles, { opacity: 0, y: 34, rotateX: -35, scale: .92, duration: .55, ease: 'power3.out', stagger: .09 }, 0.15);
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
